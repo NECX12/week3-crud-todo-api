@@ -12,6 +12,12 @@ app.get('/todos', (req, res) => {
   res.status(200).json(todos); // Send array as JSON
 });
 
+// GET /todos/active (filter !completed)
+app.get('/todos/active', (req, res) => {
+  const activeTodos = todos.filter(todo => !todo.completed);
+  res.status(200).json(activeTodos);
+});
+
 // Get /todo/:id (single read)
 app.get('/todos/:id', (req, res) => {
   const id = parseInt(req.params.id, 10);
@@ -24,10 +30,10 @@ app.get('/todos/:id', (req, res) => {
 })
 
 // Validation: POST requires "tast" field
-app.post("/todos", (req, res) => {
+app.post("/task-checker", (req, res) => {
   const {task} = req.body;
 
-  if (!task || task !== "string" || task.trim() === "") {
+  if (!task || typeof task !== "string" || task.trim() === "") {
     return res.status(400).json({message: "POST requires a task field"})
 
 }
@@ -74,11 +80,6 @@ app.get('/todos/completed', (req, res) => {
   res.json(completed); // Custom Read!
 });
 
-// GET /todos/active (filter !completed)
-app.get('todos/active', (req, res) => {
-  const activeTodos = todos.filter(todo => !todo.completed);
-  res.status(200).json(activeTodos);
-});
 
 app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Server error!' });
