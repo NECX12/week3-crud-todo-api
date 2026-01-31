@@ -12,6 +12,38 @@ app.get('/todos', (req, res) => {
   res.status(200).json(todos); // Send array as JSON
 });
 
+// Get /todo/:id (single read)
+app.get('/todos/:id', (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  const todo = todos.find(e => e.id == id);
+  if (todo) {
+    res.status(200).json(todo);
+  } else {
+    res.status(404).json({message: "This todo is nowhere to be found"})
+  }
+})
+
+// Validation: POST requires "tast" field
+app.post("/todos", (req, res) => {
+  const {task} = req.body;
+
+  if (!task || task !== "string" || task.trim() === "") {
+    return res.status(400).json({message: "POST requires a task field"})
+
+}
+
+  const newTodo = {
+    id: todos.length ? todos[todos.length - 1].id +1 : 1,
+    task: task.trim(),
+    completed: false
+  };
+
+  todos.push(newTodo);
+
+  res.status(201).json(newTodo);
+});
+
+
 // POST New – Create
 app.post('/todos', (req, res) => {
   const newTodo = { id: todos.length + 1, ...req.body }; // Auto-ID
@@ -42,9 +74,15 @@ app.get('/todos/completed', (req, res) => {
   res.json(completed); // Custom Read!
 });
 
+// GET /todos/active (filter !completed)
+app.get('todos/active', (req, res) => {
+  const activeTodos = todos.filter(todo => !todo.completed);
+  res.status(200).json(activeTodos);
+});
+
 app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Server error!' });
 });
 
 const PORT = 3002;
-app.listen(PORT, () => console.log(`Server on port ${PORT}`));
+app.listen(PORT, () => console.log(`Server on port http://localhost:${PORT}`));
